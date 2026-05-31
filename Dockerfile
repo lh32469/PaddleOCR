@@ -2,10 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /service
 
-# libGL is required by OpenCV (bundled with PaddleOCR); libglib2.0-0 for libgthread.
+# libGL   — OpenCV (bundled with PaddleOCR)
+# libglib2.0-0 — libgthread (OpenCV)
+# libgomp1 — GNU OpenMP runtime; PaddlePaddle's libpaddle.so links against libgomp.so.1
 RUN apt-get update && apt-get install -y --no-install-recommends \
         libgl1 \
         libglib2.0-0 \
+        libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
