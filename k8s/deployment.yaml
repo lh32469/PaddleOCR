@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: paddleocr-easement
+  name: paddleocr
   labels:
-    app: paddleocr-easement
+    app: paddleocr
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: paddleocr-easement
+      app: paddleocr
   template:
     metadata:
       labels:
-        app: paddleocr-easement
+        app: paddleocr
     spec:
       containers:
-        - name: paddleocr-easement
+        - name: paddleocr
           image: localhost:32000/paddleocr:main
           imagePullPolicy: IfNotPresent
           ports:
