@@ -60,6 +60,7 @@ pipeline {
               sh "kubectl create namespace $namespace"
             }
 
+            sh "cat k8s/*"
             sh "kubectl -n $namespace apply -f k8s/"
           }
         }
