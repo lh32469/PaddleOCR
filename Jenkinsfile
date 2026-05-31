@@ -20,8 +20,10 @@ pipeline {
   stages {
     stage('Build') {
       steps {
-        // Build and push Docker image
-        dockerBuild("${registry}/${project}:${branch}")
+        script {
+          // Build and push Docker image
+          dockerBuild("${registry}/${project}:${branch}")
+        }
       }
     }
 
