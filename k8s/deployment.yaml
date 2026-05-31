@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: paddleocr-easement
-          image: paddleocr-easement:latest
+          image: localhost:32000/paddleocr:main
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8000
