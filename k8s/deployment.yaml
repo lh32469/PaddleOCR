@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paddleocr-easement
+  labels:
+    app: paddleocr-easement
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: paddleocr-easement
+  template:
+    metadata:
+      labels:
+        app: paddleocr-easement
+    spec:
+      containers:
+        - name: paddleocr-easement
+          image: paddleocr-easement:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "4000m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+          # Readiness delay covers the ~20–30 s PaddleOCR model warm-up on startup.
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            failureThreshold: 6
+      # Prevent OOM-killed pods from cycling too fast while a neighbour handles load.
+      terminationGracePeriodSeconds: 60
