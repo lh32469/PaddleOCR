@@ -12,7 +12,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# paddleocr pulls in opencv-python + opencv-contrib-python (both 4.6).
+# pdf2docx (a paddleocr transitive dep) pulls in opencv-python-headless at a
+# different version. Having all three simultaneously causes a "double free or
+# corruption" crash when libpaddle loads. Fix: install everything, then replace
+# the GUI opencv builds with a single pinned headless build at the same version.
+RUN pip install --no-cache-dir -r requirements.txt \
+    && pip uninstall -y opencv-python opencv-contrib-python \
+    && pip install --no-cache-dir opencv-python-headless==4.6.0.66
 
 # Download PaddleOCR detection / recognition / angle-classifier models at build
 # time so the running pod needs no internet access and starts without delay.
