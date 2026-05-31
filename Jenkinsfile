@@ -7,16 +7,6 @@ branch = ""
 
 pipeline {
 
-  options {
-    // Discard everything except the last 10 builds
-    buildDiscarder(logRotator(numToKeepStr: '10'))
-    // Don't build the same branch concurrently
-    disableConcurrentBuilds()
-
-    // Cleanup orphaned branch Kubernetes namespace
-    branchTearDownExecutor 'Cleanup'
-  }
-
   agent {
     kubernetes {
       yaml buildPodYml
@@ -33,7 +23,9 @@ pipeline {
     timeout(time: 45, unit: 'MINUTES')
     // Prevent concurrent deploys racing on the same k8s deployment.
     disableConcurrentBuilds()
-    buildDiscarder(logRotator(numToKeepStr: '20'))
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    // Cleanup orphaned branch Kubernetes namespace
+    branchTearDownExecutor 'Cleanup'
   }
 
   stages {
