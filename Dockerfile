@@ -27,10 +27,10 @@ RUN pip install --no-cache-dir -r requirements.txt \
 ENV FLAGS_use_mkldnn=0
 ENV PADDLE_DISABLE_MKLDNN=1
 
-# Download PaddleOCR detection / recognition / angle-classifier models at build
-# time so the running pod needs no internet access and starts without delay.
-COPY download_models.py .
-RUN python download_models.py
+# Models (~15 MB) are downloaded on first pod startup by the FastAPI lifespan
+# hook. Pre-downloading at build time segfaults inside the DinD build sandbox
+# because PaddlePaddle's CPU-feature probing requires capabilities that DinD
+# does not expose. The readiness probe delay (90 s) covers download + warm-up.
 
 COPY app/ app/
 

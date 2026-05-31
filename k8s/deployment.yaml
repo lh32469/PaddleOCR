@@ -34,13 +34,14 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 30
             failureThreshold: 3
-          # Readiness delay covers the ~20–30 s PaddleOCR model warm-up on startup.
+          # Delay covers model download (~15 MB) + PaddleOCR warm-up on first start.
+          # Models are cached in the container after the first pod run.
           readinessProbe:
             httpGet:
               path: /health
               port: 8000
-            initialDelaySeconds: 45
+            initialDelaySeconds: 90
             periodSeconds: 10
-            failureThreshold: 6
+            failureThreshold: 12
       # Prevent OOM-killed pods from cycling too fast while a neighbour handles load.
       terminationGracePeriodSeconds: 60
