@@ -2,11 +2,30 @@
 
 def buildPodYml = libraryResource 'buildPodMaven25.yml'
 
+project = ""
+branch = ""
+
 pipeline {
+
+  options {
+    // Discard everything except the last 10 builds
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+    // Don't build the same branch concurrently
+    disableConcurrentBuilds()
+
+    // Cleanup orphaned branch Kubernetes namespace
+    branchTearDownExecutor 'Cleanup'
+  }
+
   agent {
     kubernetes {
       yaml buildPodYml
     }
+  }
+
+  environment {
+    branch = env.BRANCH_NAME.toLowerCase()
+    project = getProject()
   }
 
   options {
@@ -20,29 +39,37 @@ pipeline {
   stages {
     stage('Build') {
       steps {
+
         script {
-          // Build and push Docker image
-          dockerBuild("${registry}/${project}:${branch}")
+          branch = env.BRANCH_NAME.toLowerCase()
+          registry = "registry.container-registry:5000"
+          project = getProject()
+          println "Project/Branch = " + project + "/" + branch
         }
+
+        // Build and push Docker image
+        dockerBuild("${registry}/${project}:${branch}")
       }
     }
 
     stage('Deploy') {
-      container('kubectl') {
-        script {
-          def namespace = "${project}-${branch}" as String
-          status = sh(
-            returnStatus: true,
-            script: "kubectl get namespace $namespace"
-          )
+      steps {                                    // steps{} wrapper required for container()
+        container('kubectl') {
+          script {
+            def namespace = "${project}-${branch}" as String
+            def status = sh(                     // def keeps status local to this script block
+              returnStatus: true,
+              script: "kubectl get namespace $namespace"
+            )
 
-          if (status == 0) {
-            println "$namespace namespace exists"
-          } else {
-            sh "kubectl create namespace $namespace"
+            if (status == 0) {
+              println "$namespace namespace exists"
+            } else {
+              sh "kubectl create namespace $namespace"
+            }
+
+            sh "kubectl -n $namespace apply -f k8s/"
           }
-
-          sh "kubectl -n $namespace apply -f k8s/"
         }
       }
     }
