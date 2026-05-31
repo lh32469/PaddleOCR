@@ -19,7 +19,7 @@ _ocr: PaddleOCR | None = None
 def get_ocr() -> PaddleOCR:
     global _ocr
     if _ocr is None:
-        _ocr = PaddleOCR(use_angle_cls=True, lang="en", show_log=False)
+        _ocr = PaddleOCR(use_angle_cls=True, lang="en", show_log=False, enable_mkldnn=False)
     return _ocr
 
 

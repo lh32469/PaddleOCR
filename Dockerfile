@@ -21,6 +21,12 @@ RUN pip install --no-cache-dir -r requirements.txt \
     && pip uninstall -y opencv-python opencv-contrib-python \
     && pip install --no-cache-dir opencv-python-headless==4.6.0.66
 
+# Disable MKL-DNN (Intel math kernel) whose CPU-feature auto-detection segfaults
+# inside Docker/k8s cgroups on some hosts. Safe to set globally; inference falls
+# back to the plain Eigen/OpenBLAS path, which is stable in all container envs.
+ENV FLAGS_use_mkldnn=0
+ENV PADDLE_DISABLE_MKLDNN=1
+
 # Download PaddleOCR detection / recognition / angle-classifier models at build
 # time so the running pod needs no internet access and starts without delay.
 COPY download_models.py .
