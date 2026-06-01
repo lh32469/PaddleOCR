@@ -1,6 +1,7 @@
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 python-multipart==0.0.12
+httpx==0.28.1
 paddlepaddle==2.6.2
 paddleocr==2.7.3
 pymupdf==1.24.14
