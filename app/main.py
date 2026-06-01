@@ -17,6 +17,16 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+class _HealthCheckFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        if "GET /health" in record.getMessage():
+            record.levelno = logging.DEBUG
+            record.levelname = "DEBUG"
+        return True
+
+logging.getLogger("uvicorn.access").addFilter(_HealthCheckFilter())
+
+
 @dataclass
 class _OcrJob:
     pdf_bytes: bytes
