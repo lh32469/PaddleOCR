@@ -35,7 +35,10 @@ class _OcrJob:
 
 
 _queue: asyncio.Queue[_OcrJob] = asyncio.Queue()
-_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="ocr")
+
+# Apple Vision calls are stateless and thread-safe — no shared model object,
+# so multiple workers and multiple executor threads are both safe.
+_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="ocr")
 
 
 async def _worker() -> None:
@@ -112,4 +115,4 @@ async def submit_easement(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("macos.main:app", host="0.0.0.0", port=8000, workers=1, timeout_keep_alive=120)
+    uvicorn.run("macos.main:app", host="0.0.0.0", port=8000, workers=4, timeout_keep_alive=120)
