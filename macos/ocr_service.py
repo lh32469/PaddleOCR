@@ -4,7 +4,7 @@ import logging
 from typing import List
 
 import fitz  # PyMuPDF
-from ocrmac import OCR
+from ocrmac.ocrmac import OCR
 from PIL import Image
 
 from .models import EasementPage
