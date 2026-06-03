@@ -108,3 +108,8 @@ async def submit_easement(
     logger.info("accepted file=%s callback=%s depth=%d",
                 file.filename, callbackUrl, _queue.qsize())
     return {"accepted": True, "filename": file.filename, "queued": _queue.qsize()}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("macos.main:app", host="0.0.0.0", port=8000, workers=1, timeout_keep_alive=120)
